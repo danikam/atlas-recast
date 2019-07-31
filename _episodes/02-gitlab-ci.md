@@ -27,7 +27,7 @@ So how is this automated container re-building actually accomplished? As you've 
 These all sound like tasks that a Dockerfile would be great for! And indeed, the first key component of automated environment preservation with gitlab CI/CD is to add a Dockerfile to the repo with these specifications.  
 
 > ## `atlas` User in ATLAS Containers
-> By default, files added to a docker container will be owned by root user, but for reasons that I still need to understand [FIXME: why do ATLAS containers use atlas rather than root user by default??], ATLAS uses a non-root `atlas` user in its analysis containers by default. 
+> By default, files added to a docker container will be owned by root user. However, it's considered good practice to avoid actually working as root user unnecessarily since this minimizes the risk of accidentally misusing root privileges [FIXME: Lukas, is this the main reason?], so the analysisbase images use a non-root `atlas` user by default. 
 > 
 > Because of this, if we don't explicitly make the directory containing your analysis code owned by `atlas` user, you may run into permission issues when your code tries to run (as atlas user) and create new files and plots, etc. inside the directory.
 {: .callout}

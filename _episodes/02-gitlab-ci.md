@@ -1,14 +1,16 @@
 ---
 title: "Gitlab CI and Docker for Environment Preservation"
-teaching: 20
+teaching: 30
 exercises: 30
 questions:
-- "How does gitlab CI/CD help me continuously keep my RECAST container environment(s) up-to-date?"
+- "How does gitlab CI/CD help me continuously keep my containerized analysis environment(s) up-to-date?"
 - "What do I need to add to my gitlab repo(s) to enable this functionality?"
 objectives:
 - "Learn how to write a Dockerfile to containerize your analysis code and environment."
 - "Understand what needs to be added to your `.gitlab-ci.yml` file to keep the containerized environment continuously up to date for your repo."
-
+keypoints:
+- "gitlab CI/CD can be used to keep your analysis environment up-to-date by re-building a container that encapsulates the environment each time new commits are pushed to the repo."
+- "This functionality is enabled in gitlab CI/CD by adding a Dockerfile to your repo that specifies how to build the environment, and a container-building stage to the .gitlab-ci.yml file."
 ---
 
 ## Introduction
@@ -43,7 +45,7 @@ So far, you've been starting your containers from the atlas/analysisbase:21.2.75
 > ~~~
 > {: .source}
 > 
-> Now open the Dockerfile with a text editor and, starting with the following skeleton, fill in the FIXME's to make a Dockerfile that builds your analysis environment. 
+> Now open the Dockerfile with a text editor and, starting with the following skeleton, fill in the FIXMEs to make a Dockerfile that builds your analysis environment. 
 > 
 > ~~~
 > # Specify the image from which you are working
@@ -138,10 +140,18 @@ build_image:
 ~~~
 {: .source}
 
+Once this is done, you can commit and push the updated .gitlab-ci.yml file to your gitlab repo and check to make sure the pipeline passed. If it passed, the repo image built by the pipeline should now be stored on the docker registry, and accessible as follows:
+
+~~~
+docker login gitlab-registry.cern.ch
+docker pull gitlab-registry.cern.ch/[repo owner]/[repo name]:[branch name]
+~~~
+{: .source}
+
 Notice that the script to run is just a dummy 'ignore' command. This is because using the docker-image-build tag, the jobs always land on special runners that are managed by CERN IT which run a custom script in the background. You can safely ignore the details.
 
 > ## Recommended Tag Structure
-> You'll notice the environment variable `TO` in the `.gitlab-ci.yml` script above. This contols the name of the Docker image that is produced in the CI step. Here, the image name will be `<reponame>:<branch or tagname>`. This way images built from different branches do not overwrite each other and tagged commits will correspond to tagged images.
+> You'll notice the environment variable `TO` in the `.gitlab-ci.yml` script above. This controls the name of the Docker image that is produced in the CI step. Here, the image name will be `<reponame>:<branch or tagname>`. This way images built from different branches do not overwrite each other and tagged commits will correspond to tagged images.
 {: .callout} 
 
 {% include links.md %}
